@@ -1,0 +1,28 @@
+# Build the application from source
+FROM golang:1.23 AS build-stage
+
+WORKDIR /services/backend
+
+# Use the build-time variable to copy go.mod and go.sum
+COPY services/backend/* ./
+# RUN go mod download
+# Copy the vendor folder
+COPY services/backend/vendor ./vendor
+ENV GOFLAGS=-mod=vendor
+# Use the build-time variable to copy the source files
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=linux go build -o /backend
+
+# Run the tests in the container
+FROM build-stage AS run-test-stage
+RUN go test -v ./...
+
+# Deploy the application binary into a lean image
+FROM gcr.io/distroless/base-debian11 AS build-release-stage
+
+WORKDIR /
+
+COPY --from=build-stage /backend /backend
+
+ENTRYPOINT ["/backend"]

@@ -1,0 +1,5 @@
+{
+    "GARAGE_CAPACITY": 100,
+    "MAX_ENTRY_WAIT": 3,
+    "MAX_EXIT_WAIT": 5
+}

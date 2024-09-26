@@ -40,3 +40,14 @@ func TestLoadConfig(t *testing.T) {
 		t.Errorf("Expected non-zero values for GARAGE_CAPACITY, MAX_ENTRY_WAIT, and MAX_EXIT_WAIT")
 	}
 }
+
+func TestChanMain(t *testing.T) {
+	mockNoise := mockNoise{}
+	mockMqtt := mockMqtt{}
+	config := loadConfig()
+	entryChann := enterTollSim(mockNoise, config, mockMqtt)
+	exitChann := waiter(entryChann, config)
+	for n := range exitChann {
+		exitTollSim(n, mockMqtt)
+	}
+}
